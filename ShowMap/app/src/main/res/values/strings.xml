@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">ShowMap</string>
+    <string name="name">name</string>
+    <string name="login"> Login </string>
+    <string name="password">password</string>
+    <string name="nameText">enter your name</string>
+    <string name="passwordText">Enter your password</string>
+    <string name="buttonText">Login</string>
+</resources>

@@ -1,108 +1,90 @@
 package com.example.connecttodb;
-
-
 import android.annotation.SuppressLint;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.Spinner;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private boolean isNightMode = false;
-    public Spinner sp;
-    public ArrayList<String> items = new ArrayList<>();
-    public List<CheckBox> checkboxes = new ArrayList<>();
-    public ArrayList<String> res =  new ArrayList<>();
-    @Override
+    private EditText etName, etRollNo, etCourse, etAverageMarks,deleteroll;
+    private TextView tvResult;
+    private DataBaseHelper dbHelper;
+    public int check =0;
+    @SuppressLint("MissingInflatedId")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        Button btnClickMe = findViewById(R.id.btn_click_me);
-        sp  = findViewById(R.id.spinner);
-        items.add("java");
-        items.add("c++");
-        items.add("python");
-        items.add("javascript");
-        items.add("c");
-        items.add("php");
-        items.add("others");
-        ArrayAdapter<String> arr = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,items);
-        sp.setAdapter(arr);
-        TextView tres1 = findViewById(R.id.textView2);
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) TextView tres2 =findViewById(R.id.textView5);
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) TextView tres3 = findViewById(R.id.textView6);
-        Button btn = findViewById(R.id.button);
-        checkboxes.add(findViewById(R.id.checkBox4));
-        checkboxes.add(findViewById(R.id.checkBox3));
-        checkboxes.add(findViewById(R.id.checkBox2));
-        checkboxes.add(findViewById(R.id.checkBox));
-        RadioGroup radioGroup = findViewById(R.id.radioGroup);
-        CompoundButton.OnCheckedChangeListener Listener = (btnview,ischecked)->{
-            String str = btnview.getText().toString();
-            if (ischecked) {
-                res.add(str);
-            } else {
-                res.remove(str);
+        etName=findViewById(R.id.etName);
+        etRollNo=findViewById(R.id.etRollNo);
+        etCourse=findViewById(R.id.etCourse);
+        etAverageMarks=findViewById(R.id.etAverageMarks);
+        deleteroll= findViewById(R.id.etDeleteByroll);
+        Button btnInsert = findViewById(R.id.btnInsert);
+        Button delete = findViewById(R.id.btnDelete);
+        Button update=  findViewById(R.id.updatebtn);
+        tvResult = findViewById(R.id.tvResult);
+        dbHelper = new DataBaseHelper(this);
+        btnInsert.setOnClickListener(v->{
+           String name = etName.getText().toString();
+           int roll = Integer.parseInt(etRollNo.getText().toString());
+           String course = etCourse.getText().toString();
+           float avgMarks = Float.parseFloat(etAverageMarks.getText().toString());
+            boolean isinserted = dbHelper.insertStudent(name,roll,course,avgMarks);
+            if(isinserted){
+                tvResult.setText("inserted sucessfully ");
+            }else{
+                tvResult.setText("some thing wents wrongs");
             }
-        };
-        for (CheckBox checkBox:checkboxes) {
-            checkBox.setOnCheckedChangeListener(Listener);
-        }
-
-
-        btn.setOnClickListener(v->{
-            if (!res.isEmpty()) {
-                String result = "Selected Options: " + String.join(", ", res);
-                tres1.setText(result);
-            } else {
-                tres1.setText("No options selected.");
-            }
-            int SelectedRadio = radioGroup.getCheckedRadioButtonId();
-            if(SelectedRadio!=-1){
-                RadioButton radio = findViewById(SelectedRadio);
-                tres3.setText(radio.getText().toString()+" ");
-            }
-            Toast.makeText(MainActivity.this,"lets see",Toast.LENGTH_SHORT).show();
-             String selecteditem = sp.getSelectedItem().toString();
-            tres2.setText(selecteditem);
+            fetchDataDisplay();
         });
-
-
-
-
-
-        int currentMode = AppCompatDelegate.getDefaultNightMode();
-        isNightMode = (currentMode == AppCompatDelegate.MODE_NIGHT_YES);
-        if (isNightMode) {
-            btnClickMe.setText("Click Me (Night)");
-        } else {
-            btnClickMe.setText("Click Me (Day)");
-        }
-        btnClickMe.setOnClickListener(v -> {
-            if (isNightMode) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                btnClickMe.setText("Click Me (Day)");
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                btnClickMe.setText("Click Me (Night)");
+        delete.setOnClickListener(v->{
+            Boolean isdelete = dbHelper.DeleteData(Integer.parseInt(deleteroll.getText().toString()));
+            if(isdelete){
+                fetchDataDisplay();
             }
-            isNightMode = !isNightMode;
+            else{
+                Toast.makeText(MainActivity.this,"no item is match with your rollnumber ",Toast.LENGTH_LONG).show();
+            }
         });
+        update.setOnClickListener(v->{
+            String name = etName.getText().toString();
+            int roll = Integer.parseInt(etRollNo.getText().toString());
+            String course = etCourse.getText().toString();
+            float avgMarks = Float.parseFloat(etAverageMarks.getText().toString());
+            Boolean isupdate = dbHelper.Updatevalue(name,course,avgMarks,roll);
+            if(isupdate){
+                fetchDataDisplay();
+            }
+            else{
+                Toast.makeText(MainActivity.this,"no item is match with your rollnumber ",Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void fetchDataDisplay() {
+        Cursor cursor = dbHelper.getAllStudents();
+        if (cursor.getCount() == 0) {
+            tvResult.setText("no record found");
+            return;
+        }
+        StringBuilder str = new StringBuilder();
+        while (cursor.moveToNext()) {
+            @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex("name"));
+            @SuppressLint("Range") int rollNo = cursor.getInt(cursor.getColumnIndex("roll_no"));
+            @SuppressLint("Range") String course = cursor.getString(cursor.getColumnIndex("course"));
+            @SuppressLint("Range") float averageMarks = cursor.getFloat(cursor.getColumnIndex("average_marks"));
+            str.append("Name: ").append(name).append("\n")
+                    .append("Roll No: ").append(rollNo).append("\n")
+                    .append("Course").append(course).append("\n")
+                    .append("avragemarks").append(averageMarks).append("\n");
+        }
+        cursor.close();
+        tvResult.setText(str.toString());
     }
 }
