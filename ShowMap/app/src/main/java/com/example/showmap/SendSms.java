@@ -1,15 +1,15 @@
 package com.example.showmap;
 
+import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.telephony.SmsManager;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -26,10 +26,17 @@ public class SendSms extends AppCompatActivity{
         setContentView(R.layout.activity_sms);
         etPhoneNumber = findViewById(R.id.etPhoneNumber);
         etMessage = findViewById(R.id.etMessage);
+        Button next = findViewById(R.id.next);
         btnSend = findViewById(R.id.btnSendSMS);
         checkPermissionOfsms();
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SendSms.this,LoginActivity.class);
+                startActivity(intent);
+            }
+        });
         }
-
     private void checkPermissionOfsms() {
         if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.SEND_SMS)!= PackageManager.PERMISSION_GRANTED){
             showPermissionExplanationDialog();
@@ -47,7 +54,7 @@ public class SendSms extends AppCompatActivity{
                 .setPositiveButton("go", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Intent intent = new Intent(ACTION_APPLICATION_DETAILS_SETTINGS);
                         Uri uri = Uri.fromParts("package", getPackageName(), null);
                         intent.setData(uri);
                         startActivity(intent);

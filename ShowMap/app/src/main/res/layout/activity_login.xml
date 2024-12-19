@@ -8,6 +8,7 @@
     android:layout_marginBottom="10dp">
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="297dp"
         android:layout_height="371dp"
         android:background="@drawable/border"
@@ -15,9 +16,9 @@
         android:padding="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.331">
 
         <TextView
             android:id="@+id/login"
@@ -108,5 +109,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/buttonText" />
+
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/db"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.446"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        app:layout_constraintVertical_bias="0.094" />
 </androidx.constraintlayout.widget.ConstraintLayout>
